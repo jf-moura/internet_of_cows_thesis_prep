@@ -47,6 +47,7 @@
 \ntaddfile{abstract}[pt]{abstract-pt}  % Abstract in Portuguese
 \ntaddfile{abstract}[en]{abstract-en}  % Abstract in English
 % \ntaddfile{abstract}[fr]{abstract-fr}  % Abstract in French
+% \ntaddfile{abstract}[gr]{abstract-gr}  % Abstract in Greek
 
 %%------------------------------------------------------------
 % Lists of Glossary, Acronyms and Symbols
@@ -79,7 +80,8 @@
 % \ntaddfile{annex}{annex2}
 
 %%------------------------------------------------------------
-% Definition of the statement page, to be printed before the copyright
-% syntax: \ntaddfile{statement}{filename}
-% \ntaddfile{statement}{statement-nova-ims}
-
+% User defined cover instead of standard one
+%   syntax: \ntaddfile{cover}[front,back]{filename}
+% \ntaddfile{cover}[1]{cover-front}  % Abstract in Portuguese
+% \ntaddfile{cover}[N]{cover-back}  % Abstract in English
+% \ntsetup{secondcover=false}%
