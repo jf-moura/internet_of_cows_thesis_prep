@@ -179,8 +179,8 @@ However, as any other protocol, it has its limitations. A few of this are \cite{
 \end{enumerate}
 
 
-\subsection{Discution}
-\label{subsec:gossip_discution}
+\subsection{Discussion}
+\label{subsec:gossip_discussion}
 Throughout this section \ref{sec:gossip_protocol} it has been explained the basis of the
 gossip protocol, its strategies, tree-based approaches, particularly the PlumTree, it was
 also mentioned some interesting examples of gossip-based methods and finally its limitations.
@@ -304,6 +304,7 @@ exchange routes \cite{Yadav2012, Lewis2004}:
 
 \subsection{Strategies}
 \label{subsec:wsn_strategies}
+% TODO:
 The WSN have enumerous applications, this idea will be further discussed in the subsequent
 subsection \ref{subsec:wsn_applications}, which will lead to different solutions for each of
 them.
@@ -335,16 +336,46 @@ for some applications of the network.
 
 \subsection{Applications}
 \label{subsec:wsn_applications}
-The applications of WSN is vaste, some of the areas are health, military, home, environmental
-and many others.
-
-%discussion -> most important is the low power
+% TODO: Melhorar isto
+The WSN has a vast number and types of applications, some are related to the health,
+others to the military, home, environmental and many others.
 
 \subsubsection{ZebraNet}
 \label{subsubsection:zebranet}
+One of the most revolucionary application of WSN was developed to track wildlife,
+specifically zebras, for biology research, using a mobile base station. This method,
+denominated ZebraNet, collects logged data from tracking collars, transported by the
+animals, and afterward it transmites this data back to the researchers. Considering there
+is no fixed antennas or cellular telephone service, the protocol uses ad hoc
+peer-to-peer routing to transport the data around.
+
+The ZebraNet project focused on resolving some of the problems observed from previous
+studies of collecting data from wildlife tracking. One of the main obstacle was using
+satellites to transport the data. The process of uploading data to satellites is slow and
+power consuming. Moreover, the data download from the satellite to the researchers is
+charged by the bit, which restricted the amount of data collected. Futhermore, these
+systems used bateries without solar recharge, which would eventually end, and had to be
+recovered and recharged, losing enormous amounts of data in process \cite{Juang2002}.
+
+Additional, one of the biggest concerns during the development of this project was the
+design limitations. Due to the fact that each node would be transported by an animal,
+its weight and size was immediatly limited. And since the nodes are difficult to
+retrieve, the device has to have a durable battery life \cite{Zhang2004}. Subsequentially,
+most of the weight would be occupied by the battery and the \Gls{GPS}, leaving a small
+space for the storage, which means that there is small space for redundant messages in this
+protocol. Lastly, it was crucial to consider the impact of the number and size of data
+transmissions required as well as the range of these transmissions.
+% TODO: maybe talk more about the hardware
+% TODO: conclude
+
 
 \subsubsection{Wireless Tracking}
 \label{subsubsection:wireless_tracking}
+
+\subsection{Discussion}
+%discussion -> most important is the low power
+% -> zebranet has mobile base station, zebra-tracking is a domain in which the
+% node mobility models are largely unknown, and in fact are ultimately the research goal.
 
 %\section{Sensors and Arduino}
 %\label{sec:sensors_and_arduino}
@@ -357,3 +388,10 @@ and many others.
 
 \section{Summary}
 \label{sec:summary}
+% ad hoc protocol -> An ad hoc protocol is a type of communication protocol that allows 
+% devices to connect and communicate with each other without the need for a central 
+% network infrastructure or access point. In an ad hoc network, each device acts as a 
+% router, forwarding packets to other devices on the network. This type of network is 
+% often used in situations where a traditional network infrastructure is not available or 
+% feasible, such as in emergency or disaster scenarios, or in mobile or wireless 
+% environments.
