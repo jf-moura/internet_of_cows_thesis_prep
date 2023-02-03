@@ -10,35 +10,48 @@
 
 \chapter{Introduction}
 \label{cha:introduction}
-This chapter will explore the motivations for this thesis development, the
-underlying problem that provoked it, the objectives expected to achieve during its
-development and finish with the current document structure.
+This chapter will explore the motivations for the work to be conducted, the underlying
+problem that motivates our work, the objectives and expected contributors to achieve during
+its development. This Chapter closes with a brief presentation of the structure for the
+remainder of the document.
 
-\section{Motivations}
-\label{sec:motivations}
-In the xxx Farm, located in xxx, they have over 150 cows, alongside many other animals, spread
-throughout xxx acres. Controlling that many animals in such a vast terrain is quite a difficult
-task. Furthermore, the region lacks cellular service, which complicates this mission even more.
+\section{Motivation}
+\label{sec:motivation}
+In the Coitadinha Farm, located in Alentejo, Portugal, they have over 150 cows,
+alongside many other animals, spread throughout thousands of acres. Controlling that many
+animals in such a vast terrain is quite a difficult task. In this context. the manager of the
+Farm have interest in monitoring the behaviours of cows. Obtaining useful data such as their
+daily patterns of movement, where they spend time and, potentially, manage their location
+through the use of adjustable virtual fences. From a research prespective from ecology and
+conservation, the aforementioned data is also relevant to understand the impact of cows
+behaviour on the ecossystem, in particular, vegetation. Unfortunately there are not many
+technological solutions to this end, and those that exist are expensive and based on
+closed solutions. Furthermore, the region lacks quality cellular service, which complicates
+further the use of technological solutions to simplify this task.
 
 These cows are kept separated in herds depending on their ages, which means that the younger
 cows are not in the same herd as the older ones. This kind of separation is quite important
 for them to coexist. Inside each herd they follow a hierarchical structure, having a leader
-that all the other cows follow.
+that all the other cows in the herd tend to follow.
 
-The xxx Farm currently has physical fences in place to maintain the multiple herds separated
-from each other and protected. However, these fences are not very persistent, which lead to an
-often replacement and potential danger for the cows. In addition, since the farm has an
-immense amount of land, it is reasonably strenuous to locate all cows and make sure all
-are healthy and safe.
+The Coitadinha Farm currently has physical fences in place to maintain the multiple
+herds separated from each other and protected. However, these fences are not very durable,
+which lead to an often replacement and potential danger for the cows. In addition, since the
+farm covers an immense amount of land, it is reasonably strenuous to locate all cows and make
+sure all are healthy and safe.
 
 Having already available some great options of collars that create virtual fences for all
-kinds of animals, there are still no alternative that would work for the xxx Farm. Mainly
-because of the lack of cellular service available, but also do to the immensely amount of
-cattle at this location.
+kinds of animals, there are still no alternative that would work for the Coitadinha Farm.
+Mainly because of the lack of cellular service available, but also do to the large number
+of cattle herds in this production.
 
 Furthermore, it of the upmost importance to be able to change the herds' location considering
 the effect in plant communities from cows grazing in the exact same area for long periods
-of time.
+of time, this should be possible to do with minimal effort from a control station in the main
+farm building for instance.
+
+% talk about the common points, the drinking places that are 8 and we can eventually add a 
+% point of connection
 
 \section{Problem Statement}
 \label{sec:problem_statement}
@@ -49,16 +62,17 @@ Furthermore, seeing as most farms have a vast amount of land where their cows ar
 it becomes quite difficult to provide help if a cow is in danger or lost, especially considering
 that this information is often obtained too late.
 
-Another challenge arises when the farms do not have network towers. This creates obstacles to
-propagate messages from the fields to user.
+Another challenge arises when the farms do not have network coverage. This creates obstacles
+to propagate messages from the fields to the user, even assuming that cows wear devices
+capable of monitoring their behaviours and communicating with a centralized infrastructure.
 
 Ultimately, there is no low consuming, reliable and robust collar for tracking wildlife in a
 rural area, with no access to network infrastructures, and with the option to create a virtual
-fence.
+fence. We will tacle this problem by proposing a novel and innovative solution.
 
 \section{Objectives}
 \label{sec:objectives}
-During this dissertation it is expected to be developed a fully functional animal collar,
+During this dissertation we expect to develop a fully functional prototype of an animal collar,
 adaptable to any cow, that connects to a \Gls{GPS} and creates a virtual fence for each herd. This
 fence should be adjustable accordingly to the user's desire and the collars should send a
 vibration to the cows, if they are located outside the fence area, in order to get them back
@@ -67,17 +81,24 @@ inside.
 These collars should provide accurate information about the cows' locations as well as be
 highly scalable to handle all the cows' data. The ultimate goal is to find a reliable and
 not much consuming solution to deal with the sensing information collected and transmit it
-back to the users.
+back to the users. To minimize cost and deal with the lack of infrastructure we plan to explore
+the hability of collars to exchange information directly through the use of gossip protocols.
+This will allow to minimize the number of collars that need a \glsxtrshort{GPS} tracker and
+more powerful radio devices.
 
+\section{Expected Contributors}
+\label{sec:expected_contributors}
+%TODO
 
-\section{Structure}
+\section{Document Structure}
 \label{sec:structure}
 The remainder of this dissertation is organized as follows:
-\begin{itemize}
-      \item Chapter 2 - \nameref{cha:related_work}: includes research on existing protocols
-            for broadcasting, particularly the Gossip Protocol, presents wireless sensor
-            networks and some of its applications, reflects on how cows behave in a herd and
-            their habits and lastly introduces a few existing collars and their specifications.
-      \item Chapter 3 - \nameref{cha:work_plan}: a description of the future work
+\begin{description}
+      \item[Chapter~\ref{cha:related_work}] - Related Work: includes research on existing
+            protocols for broadcasting, particularly the Gossip Protocol, presents wireless
+            sensor networks and some of its applications, reflects on how cows behave in a
+            herd and their habits and lastly introduces a few existing collars and their
+            specifications.
+      \item[Chapter~\ref{cha:work_plan}] - Work Plan: a description of the future work
             organization and explication of each work phase.
-\end{itemize}
+\end{description}
