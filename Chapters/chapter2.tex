@@ -21,18 +21,22 @@ their diet, and its consequences to the plant communities. %TODO: complete
 
 \section{Gossip Protocols}
 \label{sec:gossip_protocols}
-%TODO: add a small description
+Gossip protocols \cite{Demers1987}, also known as epidemic protocols, were first proposed as
+highly scalable and resilient approaches to implement reliable dissemination of information
+\cite{Bakhshi2007, Friedman2009, Kermarrec2007}. For a protocol to be considered reliable it
+must deliver the messages to all the nodes in the network, even if there are network omissions
+or node failures \cite{Leitao2012}.
+
+Subsequentially these protocols were used to resolve many other problems, such as failure detection,
+data aggregation, overlay topology construction and many more\cite{Montresor2017}.
 
 \subsection{History and Overview}
 \label{subsec:gossip_history_overview}
-%TODO: Citations after gossip protocols??
-Gossip protocols, also known as epidemic protocols, as the name indicates, was created
-based on how rumors are propagated in social groups. In a gossip protocol, nodes in a
-network send the information, randomly, to other nodes in the same network, similar to how a
-rumor is spread between members in a social group \cite{Leitao2007}.
+Gossip protocols, as the name indicates, were created based on how rumors are propagated in
+social groups \cite{Leitao2007}. In a gossip protocol, nodes in a network send the information, randomly, to
+other nodes in the same network, similar to how a rumor is spread between members in a social
+group.
 
-Gossip protocols are known as highly scalable and resilient approach to implement reliable
-broadcast %TODO: Citation & explain what is a reliable broadcast. 
 These protocols are based on every participant propagating their messages collaboratively
 throughout all the members of their group.
 
@@ -44,12 +48,11 @@ the first time, they will do the same as the previous node and resend the messag
 \textit{t}, randomly chosen nodes. If a node receives the same message twice, it will discard
 it. When this happens, which may occur quite often since the nodes are unaware of which nodes
 have already received a message, there is communication redundancy, which while undesirable,
-serves the purpose of %!word
-omissions (e.g. messages that are not correctly received).
+serves the purpose of making omissions (e.g. messages that are not correctly received).
 
 However, since neither node knows who has received each message and who has sent a
 message to whom, each node will have to keep a log of all messages that it has already
-received, to avoid delivering it multiple times to the application and %!word %!word
+received, to avoid delivering it multiple times to the application and avoid messages
 to circulate in the network forever.
 
 
@@ -59,7 +62,7 @@ Gossip protocols have parameters that should be taken in consideration when usin
 class of protocols. The most relevant ones are \cite{Leitao2012}:
 \begin{description}
       \item[Fanout:] represents the number of nodes that each node will propagate its message
-            to, in each propagating step of the %!word
+            to, in each propagating step of the message.
       \item[Maximum Rounds:] represents how many times a message can be retransmitted. Each
             message has a value of rounds associated to it, starting with zero and adding one
             unit every time a node retransmits the message to a neighbour. When this value
@@ -123,9 +126,9 @@ latency/bandwidth tradeoff. This are two of the studied combined approaches \cit
 
 \subsection{Tree-based Approaches}
 \label{subsec:gossip_tree_based_approaches}
-Tree-based broadcasting methods have a small message complexity, however, they are not
+Tree-based broadcasting methods have a low message complexity, however, they are not
 particularly resilient to faults. On the other hand, gossip protocols, as mentioned earlier
-in Section~\ref{subsec:gossip_history_overview}, are known for their resilience, but have a
+in Section~\ref{sec:gossip_protocols}, are known for their resilience, but have a
 high message complexity \cite{Leitao2007Tree}.
 
 In order to obtain a small message complexity and high reliability, previous approaches have
@@ -133,62 +136,75 @@ considered combining both these methods.
 
 With this approach we obtain the nodes organized in a tree structure topology, where each node
 knows to whom forward its messages. To achieve this structure we have many approaches, one of
-the most popular is to rely on the PlumTree protocol.
+the most popular is to rely on the \gls{Plumtree} protocol.
 \begin{description}
-      \item[PlumTree protocol] This protocol uses eager push and lazy push gossip, previously
-            explained in the Section~\ref{subsec:gossip_strategies}. It separates the nodes in the
-            network in two subsets of randomly selected nodes. The first subset of nodes uses the
-            eager push protocol to disseminate the messages, while the other uses the lazy push
-            protocol.
-            %TODO: explain better how it works
+      \item[Plumtree protocol] \hfill \\
+            The plumtree protocol \cite{Leitao2007Tree} uses eager push and lazy push gossip,
+            previously explained in the Section~\ref{subsec:gossip_strategies}. Every node
+            maintains two separate sets of nodes, the \textit{eagerPushPeers}, to whom the
+            node disseminates its messages using eager push gossiping, and the \textit{lazyPushPeers},
+            to whom the node disseminates its messages using lazy push gossiping.
             The links that the eager push method uses to propagate the messages are
-            chosen to create a randomized broadcast network that converges to a tree-based
-            structure. While the links used during the lazy push gossip are used to ensure the
+            chosen in a way to create a spanning tree over the unstructured overlay network.
+            While the links used during the lazy push gossip are used to ensure the
             reliability of the method when nodes fail and potentially heal the broadcast tree
-            when needed \cite{Leitao2007Tree}.
-\end{description}
+            when needed.
 
-Additionally, in opposition to other dissemination protocols, that rely on tree-based gossip the
-connections first made by the eager push propagating will remain until it is detected a failure.
-This will allow us to use \Gls{TCP} connections, which will provide extra reliability and
-failure detection.
+            Additionally, in opposition to other dissemination protocols, that rely on
+            tree-based gossip the connections first made by the eager push propagating will
+            remain until it is detected a failure. This will allow us to use \Gls{TCP}
+            connections, which will provide extra reliability and failure detection.
+
+            This protocol has two main operations:
+            \begin{itemize}
+                  \item Tree construction: the protocol starts with a node using uniquely the
+                        eager push gossip to disseminate a message to \textit{t} randomly selected
+                        nodes, the nodes in his \textit{eagerPushPeers} set. When a node
+                        receives for the first time a message it includes its sender in the
+                        \textit{eagerPushPeers} set. If the node receives the same message
+                        once more, it will include its sender in the \textit{lazyPushPeers}
+                        set and it will inform the sender that he already received that
+                        message so that he can also alocate this node in his \textit{lazyPushPeers}
+                        set.
+
+                        Once the broadcast is terminated, a spanning tree is created with the
+                        overlay defined by the \textit{eagerPushPeers} set.
+
+                        The nodes will start sending messages using both the eager push and the
+                        lazy push methods. However, the messages sent to the \textit{lazyPushPeers}
+                        set will only have the broadcast ID.
+                  \item Tree repair: When a node receives a message via lazy push gossiping
+                        with a broadcast ID it does not recognize, it waits a predefined time
+                        for the full payload of the message to arrive via eager push gossiping.
+                        If the message does not arrive whitin the predefined time period, the
+                        node sends a message to the node that firstly send him the message
+                        containing the broadcast ID, as a mean to receive the payload of the
+                        missing message, as well as, to add the corresponding link between
+                        these nodes to the broadcast tree, and heal it.
+            \end{itemize}
+\end{description}
 
 
 \subsection{Examples}
 \label{subsec:gossip_examples}
-Throughout the last years there have been proposed numerous gossip-based protocols. During this
-section we will discuss some of them:
+Throughout the last years there have been proposed numerous gossip-based protocols. During
+this Section we will discuss some gossip-based dissemination examples.
 %TODO: this are overlay networks but it should be dissemination
-\begin{description}
-      \item[\Gls{Scamp}:] Contrarily to many other gossip-based protocols, with Scamp
-            it is proposed that the individual nodes have a randomized partial view of the global
-            members in the network, leading to a fully decentralized system. This is quite an
-            important advantage for large scale groups, since it requires a significant amount
-            of memory and generates a lot of network traffic to maintain the system's overall
-            consistency in extensive groups. Additionally, the scalable membership protocol is
-            also compelling for its natural increase and reorganization of the partial view of
-            the system when new nodes are added to the network. Having this partial view around
-            \textit{log n} nodes (being \textit{n} the number of overall nodes in the network)
-            \cite{Ganesh2001}.
-            %TODO: too vague, missing how it works and proprieties that garantees
-      \item[\Gls{NeEM}:] One of the biggest problems in most gossip-based protocols is when the
-            network gets congested and, subsequentially, the messages get lost. NeEM
-            uses \glsxtrshort{TCP} to disseminate the messages and resolve this problem, with the
-            usage of its inherent flow and congestion control mechanisms. In order to maintain
-            the protocol's stability, NeEM uses a buffer management technique that
-            utilizes different approaches to discard messages on overflow. It also includes the
-            knowledge about the messages' types in order to ensure that the buffer retains enough
-            space and bandwidth is used to better fit each request \cite{Pereira2003}.
-            %TODO: too vague, but is gossip propagation
-      \item[\Gls{CREW}:] Is a gossip-based protocol designed to minimize the messages
-            dissemination speed. This is acquired by maintaining in cache the information about
-            the already established connections, which will reduce the latency of reopening a
-            \glsxtrshort{TCP} connection \cite{Deshpande2006}.
-            %TODO: too vague
-            % TODO: scribe and potentially MON
-            %\item[Scribe:] Scribe is a large scale and fully descentralized
-\end{description}
 
+\subsubsection{\Gls{NeEM}}
+\label{subsubsec:gossip_examples_neem}
+One of the biggest problems in most gossip-based protocols is when the
+network gets congested and, subsequentially, the messages get lost. NeEM
+uses \glsxtrshort{TCP} to disseminate the messages and resolve this problem, with the
+usage of its inherent flow and congestion control mechanisms. In order to maintain
+the protocol's stability, NeEM uses a buffer management technique that
+utilizes different approaches to discard messages on overflow. It also includes the
+knowledge about the messages' types in order to ensure that the buffer retains enough
+space and bandwidth is used to better fit each request \cite{Pereira2003}. %TODO: too vague, but is gossip propagation
+
+\subsubsection{\Gls{AG}}
+\label{subsubsec:gossip_examples_ag}
+\cite{Chandra2001}
 
 \subsection{Gossip Limitations}
 \label{subsec:gossip_limitations}
@@ -196,14 +212,12 @@ Throughout this Section it has been vastly mentioned the advantages provided by 
 protocols. Mainly, it was referred the resilience and scalability offered by this approach.
 However, as any other protocol, it has its limitations. A few of this are \cite{Birman2007}:
 \begin{enumerate}
-      \item Fixed maximum message size - gossip protocols have a fixed maximum message size
-            which may lead to problems. %* might be untrue
-            As an example, if we desire to propagate a message with a larger size than this
-            fixed maximum message size, we will have to divide the message into multiple
-            segments. When this happens, some of these segments may be lost, since each node
-            can only gossip a certain amount of information per %!word
-            unit (occasionaly named round), which will increase the number of rounds required
-            to deliver a single message to all participants.
+      \item Saturation - if the rate of events increase there may occur saturation in the
+            communication channel, and the protocol may eventually malfunction. The same might
+            happen if the size of the events increases, since each node can only gossip a
+            certain amount of information per time unit (occasionaly named round). This will
+            lead to an increase in rounds required to deliver a single message to all
+            participants.
       \item Slow rate - the rate of messages exchange in a gossip protocol is typically quite
             low, which can cause some challenges when managing sudden and urgent events. This
             situation might be surpassed by reducing the periodicity of messages exchanges;
@@ -222,21 +236,22 @@ Throughout this Section it has been described the fundamental approaches of goss
 the main strategies, a tree-based approach, some interesting examples of gossip-based methods
 and finally their limitations.
 
-This class of protocols is crucial for the development of this dissertation %TODO: why...
+This class of protocols is crucial for the development of this dissertation since it is highly
+scalable and reliable. The gossip protocols are particularly interesting since they require
+very little or no structure to operate, which will be helpful when dealing with the
+propagation of the data provided by the herds in a system with over 150 cows.
 
-Since it is highly scalable and reliable, the gossip protocol will be helpful while dealing
-with the propagation of data in a system with over 150 cows. Due to the lack of network
-coverage in most of the farm, the information collected from devices on each cow will have to
-be communicated to their neighbours until it reaches a point of connection to the management
-platform.
+Due to the lack of network coverage in most of the farm, the information collected from
+devices on each cow will have to be communicated to their neighbours via ad-hoc until it
+reaches a point of connection to the management platform.
 
 The PlumTree approach is quite interesting for addressing some of the challenges in this work
 considering that the cows follow a hierarchy just like a tree-based protocol is design to do.
 The PlumTree can then mimic the herds' hierarchical system and find the cows that spend more
 time in close proximity making sending the information throughout the herd until the user
-easier. Unfortunately PlumTree was proposed for wired networks, where devices %!word 
-by cows will necessarly communicate via wireless, potentially in an infrastructure %!word
-network (ad hoc network) which is %!phrase
+easier. Unfortunately PlumTree was proposed for wired networks, where devices carried
+by the cows will necessarly communicate via wireless, potentially in an infrastructured-less
+network (ad-hoc network) which discussed in the next Section~\ref{sec:wireless_sensor_networks}.
 
 
 \section{Wireless Sensor Networks}
@@ -255,10 +270,10 @@ Individually, each node can perform sensing tasks, which implies:
             humidity, and many other types of data, depending on the types of sensors in the
             device;
       \item process it, using its on-board processor;
-      \item and finally, transmit it back to the sink (a node that has the capacity to communicate
-            with external devices, such as phones and laptops) by multi-hopping. It eventually
-            reaches the end users via internet or a satellite from the %!work 
-            sink node \cite{Akyildiz2002}.
+      \item and finally, by multi-hopping, transmits it back to the sink, a node that has
+            the capacity to communicate with external devices, such as phones, laptops, base
+            stations, among other. It eventually reaches the end users via internet or a
+            satellite from the spread sink node\cite{Akyildiz2002}. %?spread
 \end{itemize}
 
 \begin{figure}[H]
@@ -267,21 +282,15 @@ Individually, each node can perform sensing tasks, which implies:
       \includegraphics[scale=0.5]{Chapters/Figures/sensor_nodes_in_sensor_fields.png}
       \label{fig:sensor_nodes_in_sensor_fields}
 \end{figure}
-%TODO: define sink
-
-
-\subsection{Wireless Technologies}
-\label{subsec:wsn_wireless_technologies}
-%TODO:
-
 
 \subsection{Communication Architecture}
 \label{subsec:wsn_communication_architecture}
-The most common architecture for \glsxtrshort{WSN} follows the OSI model. This model is
-composed of five layers: application layer, transport layer, network layer, data link layer
-%* seven layers, censi presentation and sensor ?? 
-and physical layer, and three cross plane layers: power management plane, mobility management
-plane and task management plane, as shown in Figure~\ref{fig:wsn_architecture}.
+The most common architecture for \glsxtrshort{WSN} follows the OSI model. The \glsxtrshort{WSN}
+communication architecture is, however, only composed by five of the seven layers of the OSI
+model: the application layer, the transport layer, the network layer, the data link layer
+and the physical layer. It also is composed by three cross plane layers: the power management
+plane, the mobility management plane and the task management plane, as shown in
+Figure~\ref{fig:wsn_architecture}.
 
 \begin{figure}[H]
       \caption{\glsxtrshort{WSN} Communication Architecture \cite{Akyildiz2002}}
@@ -326,8 +335,9 @@ a specific area \cite{Akyildiz2002}:
 
 \subsection{Network Topologies}
 \label{subsec:network_topologies}
-There are several different topologies regarding the connection between nodes and their message
-exchange routes, as represented in the Figure~\ref{fig:network_topologies} \cite{Lewis2004, Yadav2012}:
+There are several different topologies \cite{Lewis2004, Yadav2012} regarding the connection
+between nodes and their message exchange routes. In the Figure~\ref{fig:network_topologies} it
+is possible to observe representations to the following topologies:
 \begin{description}
       \item[Star Topology:] all nodes are connected to only one node, the coordinator. This
             means every node will communicate via this central node and every node that requests
@@ -365,12 +375,108 @@ exchange routes, as represented in the Figure~\ref{fig:network_topologies} \cite
       \label{fig:network_topologies}
 \end{figure}
 
-% \subsection{Strategies}
-% \label{subsec:wsn_strategies}
-% % TODO:
-% The WSN have innumerous applications, this idea will be further discussed in the subsequent
-% subsection \ref{subsec:wsn_applications}, which will lead to different solutions for each of
-% them.
+
+\subsection{Wireless Technologies}
+\label{subsec:wsn_wireless_technologies}
+To build a wireless network we need to consider the usage of wireless technologies, and their
+characteristics and limitations. There are a multitude of technology alternatives available,
+we will briefly examine six possibilities and later compare them in the Table~\ref{table:1}
+%wifi is WLAN, bluetooth & zigbee are WPAN
+\begin{description}
+      \item[\Gls{WiFi}] - \glsxtrshort{WiFi} is a highly popular technology, most commonly
+            known for connecting smartphones and portable computers to the Internet without
+            the usage of a physical connection \cite{Sidhu2007}. It uses \glsxtrshort{RF} to
+            rapidly transmit data over short distances \cite{Khan2016}. However, for this
+            technology to function it is necessary to already exist a glsxtrshort{WiFi}
+            network at its location \cite{Nelson2020}.
+      \item[Bluetooth] - Bluetooth is widely used to connect multiple devices with each other,
+            such as wireless computer mouses, headphones, computers and other \cite{Wang2021}.
+            Similarly to \glsxtrshort{WiFi}, it transmits data over short distances, however
+            the speed of these transmissions is very low. The most commonly network topology
+            of Bluetooth is the piconet, where a Bluetooth device acts as the master and up to
+            seven active devices act as slaves. The slaves can only communicate with the master,
+            with point-to-point communication \cite{Cope2017, Lee2007}.
+      \item[ZigBee] - ZigBee's name came from the way bees fly in zigzag, which is similar to
+            the way nodes communicate in a mesh network. This technology is low cost, low
+            complexity and low power, which makes it ideal for \glsxtrshort{WSN}. It has two
+            different methods for access, the beacon enabled, that allows every node to send
+            messages to the network whenever the channel is unoccupied, and the non beacon
+            enabled, that only allows sending and receiving messages on a predefined time
+            period \cite{Kaushal2014}. A ZigBee network has three types of devices: the
+            coordinator, that creates and adjusts the network; the routers, that forward the
+            data between the nodes; and the end devices, which cannot forward data from other
+            nodes, only produce or consume it \cite{Costa2018, Ramya2011}. Besides the mesh
+            topology, it is also ZigBee also supports the star and the tree topologies, as
+            demonstrated in the Figure~\ref{fig:zigbee_topologies}, where the red nodes
+            represent the coordinators, the blue nodes represent the routers and the orange
+            nodes represent the end devices.
+            \begin{figure}[H]
+                  \caption{ZigBee Topologies \cite{Kaushal2014}}
+                  \centering
+                  \includegraphics[scale=0.7]{Chapters/Figures/zigbee topologies.png}
+                  \label{fig:zigbee_topologies}
+            \end{figure}
+            % \item[\Gls{6LoWPAN}] - \glsxtrshort{6LoWPAN} is
+            %       typically utilized to connect the physical
+            %       environment with real-world applications, these devices commonly are wireless sensors
+            %       \cite{Kim2012}.
+      \item[\Gls{LoRaWAN}] -
+            % LoRa is a low power, long range technology
+            % Most of the existing technologies are based on mesh
+            % network. In the mesh network the infrastructure node is
+            % connected to as many nodes as possible and cooperates with
+            % one another to route the data. In the mesh network each node
+            % receives and forward data from other node that might be
+            % irrelevant for it. This increases the range to a great deal but
+            % also adds complexity and decreases the battery life. On the
+            % other hand, in the star topology the bridge or switches are
+            % directly connected to a small subset of bridge or switches
+            % deceasing complexity of the network. These provide a
+            % hierarchical infrastructure. LoRaWAN is based on star
+            % topology. They decrease the power consumption and battery
+            % life to a great extend in comparison with the conventional
+            % mesh network.
+      \item[Sigfox]
+\end{description}
+
+\begin{table}[H]
+      \centering
+      \small
+      \setlength\extrarowheight{5pt}
+      \begin{tabular}{|c|c|c|c|c|c|c|}
+            \hline
+                           & \glsxtrshort{WiFi} & Bluetooth & ZigBee                         & \glsxtrshort{LoRaWAN} & Sigfox \\
+            \hline\hline
+            IEEE Standard  & 802.11ax           & 802.15.1  & 802.15.4                       &                       &        \\
+            \hline
+            Frequency Band & 2.4, 5, 6 GHz      & 2.4 GHz   & \makecell[ct]{2.4GHz (global),                                  \\868MHz (Europe),\\915MHz (America)}         &                       &        \\
+            \hline
+            \makecell[ct]{Max Data                                                                                            \\Rate}     & 9.6 Gbps             & 3 Mbps        & \makecell[ct]{250 kbps at 2.4 GHz,\\20 kbps at 868 MHz,\\40  kbps at 915 MHz} &                       &        \\
+            \hline
+            Range          & max 300 m          & 10 m      & 10-100 m                       &                       &        \\
+            \hline
+            Bandwidth      & 20 to 160 MHz      & 1 MHz     &                                &                       &        \\
+            \hline
+            \makecell[ct]{Power                                                                                               \\Consumption} & High                 & Low           & Low                  &                       &        \\
+            \hline
+            \makecell[ct]{Network                                                                                             \\Topology}  & \makecell[ct]{Infrastructure\\(ad-hoc also\\ available)}         & Piconet       & \makecell[ct]{Mesh,\\Star,\\Tree (peer-to-peer)}        & Mesh                  &        \\
+            \hline
+      \end{tabular}
+      \caption{Wireless Technologies Comparison \cite{Khan2016, Khorov2018, Oughton2021, Ramya2011}}
+      \label{table:1}
+\end{table}
+
+% \glsxtrshort{6LoWPAN} &
+%                       &
+%                       &
+%                       &
+%                       &
+%                       &
+%                       &
+% Star                  &
+% or                    &
+% Mesh                  &
+
 
 \subsection{Gossip in WSNs}
 \label{subsec:gossip_in_wsns}
@@ -379,7 +485,7 @@ the sensors, to the sink. The route chosen by these nodes has a significant impa
 overall operation of the system, therefore various protocols were studied in \cite{Akkaya2005}
 to understand which of these would better conduct this task.
 
-As presented previously, in the Section~\ref{sec:gossip_protocol}, during the execution of a
+As presented previously, in the Section~\ref{sec:gossip_protocols}, during the execution of a
 gossip protocol each node only transmits its messages to \textit{t} randomly selected nodes
 and not the whole network, as in the flooding protocol. This characteristic ensures that every
 node executing a gossip protocol will only have a single copy of the packet to be sent, which
@@ -400,12 +506,10 @@ and \nameref{subsubsection:wireless_tracking}.
 
 \subsubsection{ZebraNet}
 \label{subsubsection:zebranet}
-One of the most revolutionary applications of \glsxtrshort{WSN} is the ZebraNet, a method
+One of the most revolutionary applications of \glsxtrshort{WSN} is the ZebraNet\cite{Juang2002}, a method
 developed to track wildlife, specifically, zebras, for biology research, using a mobile base
 station. The ZebraNet collects logged data from tracking collars, transported by the
-animals, and afterward it transmits this data back to the researchers. Considering there
-is no fixed antennas or cellular telephone service, the protocol uses ad hoc
-peer-to-peer routing to transport the data around.
+animals, and afterward it transmits this data back to the researchers.
 
 The ZebraNet project focused on addressing some of the problems observed from previous
 studies of collecting data from wildlife. One of the main obstacles was using
@@ -413,21 +517,50 @@ satellites to transport the data. The process of uploading data to satellites is
 power consuming. Moreover, the data download from the satellite to the researchers is
 charged by the bit, which restricted the amount of data collected. Furthermore, these
 systems used batteries without solar panels, which would eventually end, and had to be
-recovered and recharged, losing enormous amounts of data in process \cite{Juang2002}.
+recovered and recharged, losing enormous amounts of data in process.
 
-Additionally, one of the biggest concerns during the development of this project was the
-design limitations. Due to the fact that each node would be transported by an animal,
-its weight and size was immediately limited. And since the nodes are difficult to
-retrieve, the device had to have a durable battery life \cite{Zhang2004}. Subsequentially,
-most of the weight would be occupied by the battery and the GPS, leaving a small
-space for the storage, which meant that there were a small space for redundant messages in
-this protocol. Lastly, it was crucial to consider the impact of the number and size of data
-transmissions required as well as the range of these transmissions.
-% TODO: explain in more detail how it works
+This project was develop in a wide area, with hundreds or thousands of square kilometers,
+and lasted a year without direct human interaction. It used \glsxtrshort{GPS} technology to
+obtain the position of the animals every three minutes, and also collected detailed activity
+logs every hour during three minutes. Considering there is no fixed antennas or cellular
+telephone service, the system used an ad hoc peer-to-peer routing to transport the data from
+one animal to the next towards a mobile base station, when it was in close proximity.
+
+During the development of this project there were some design limitations to consider, due to
+the fact that each node would be transported by an animal, its weight and size was immediately
+limited. And since the nodes are difficult to retrieve, the device had to have a durable
+battery life \cite{Zhang2004}. Subsequentially, most of the weight would be occupied by the
+battery and the GPS, leaving a small space for the storage, which meant that there were a
+small space for redundant messages in this protocol. Lastly, it was crucial to consider the
+impact of the number and size of data transmissions required, as well as the range of these
+transmissions and the amount of storage available to keep the activity logs.
+During the course of years there were developed many hardware alternatives \cite{Zhang2004}.
+
+The first protocol contemplated to undertake the ZebraNet communication between the nodes and
+the base station was flooding. The flooding protocol disseminates the data to all nodes
+available, which will eventually lead to a high percentage of the information to reach the
+base station even if it is only in contact with a few of the nodes. While flooding has high
+reliability, it also has high overhead, which increases the need for a larger amount of
+storage and will eventually tend to a higher network bandwidth and therefore energy required.
+
+It was then considered a protocol that took in consideration the previously used communication
+patterns. It associates a hierarchy level to every node based on his past success in delivering
+data to the base station. If a node had a high level it is probable that he is still in range
+of the base station or of another node close to it. Every node has to have knowledge of his
+own hierarchy level and when he scans for neighbours it requests their hierarchy levels. The
+nodes send their collected data to the neighbour with the highest hierarchy level. The hierarchy
+level increases when a node is in range of the base station and decreases when it is not in
+range for a period of \textit{D} scans, this means that if \textit{D} is three and the node is
+not in range of the base station during three consecutive scans his level will decrease.
+Initially all nodes start with the lowest hierarchy level, zero. The overall success of this
+protocol vastly depends on the mobility of the nodes and the base station. Since it is based
+on previously acquired data, with rapid changes of locations on either the base station or
+the nodes the success rate will be low.
+
 
 \subsubsection{Wireless Tracking}
 \label{subsubsection:wireless_tracking}
-Wireless tracking is an application of \glsxtrshort{WSN} widely used for wildlife research,
+Wireless tracking is an application of \glsxtrshort{WSN} widely used for wildlife monitoring,
 since it allows the remote monitorization of moving objects, or in this particular case,
 animals.
 
@@ -435,6 +568,9 @@ To track an object the sensor nodes detect its location and sends this informati
 user. There are mainly two options to accomplish this: using only a single node or multiple
 nodes working collaboratively. Using multiple nodes is an overall better choice, since it leads
 to higher accuracy and lower power consumption comparably to using a single node \cite{Ez2016}.
+
+To conserve energy it is common to keep only the sensor nodes closest to the target in active
+mode, while the other nodes remain inactive until the target approaches them
 
 To achieve an efficient target tracking performance it was developed countless methods,
 contemplating the challenges existent with using \glsxtrshort{WSN}, discussed furthermore in
@@ -468,8 +604,6 @@ There are three main types of target tracking approaches according to \cite{Ramy
       \item Other Network -
 \end{enumerate}
 
-
-%TODO: mirage de aves? e ygsodresi
 % In a target tracking application, the sensor nodes which can sense the target at a particular 
 % time are kept in active mode while the remaining nodes are to be retained in inactive mode so 
 % as to conserve energy until the target approaches them. To continuously monitor mobile target, 
@@ -483,6 +617,17 @@ There are three main types of target tracking approaches according to \cite{Ramy
 % detecting the movement of the object and sending control data at the same time, will consume
 % an enormous amount of energy. It was, however, developed a technique that dynamically allocates
 % resources, the \Gls{CSIP} \cite{Zhao2003}.
+
+
+\subsubsection{Yggdrasil}
+\label{subsubsection:Yggdrasil}
+Yggdrasil \cite{Costa2018} is framework that provides support
+for developing and executing distributed protocols and applications in wireless ad
+hoc settings.
+
+
+\subsubsection{MiRAge}
+\label{subsubsection:mirage}
 
 
 
@@ -536,17 +681,113 @@ There are multiple limitations that need to be considered while creating a \glsx
 
 
 \subsection{Discussion}
+Throughout this Section it has been discussed how \glsxtrshort{WSN} generally work,  some of the
+different wireless technology available, some examples of how to operate gossip protocols in
+\glsxtrshort{WSN}, a few of this type of networks applications, namely ZebraNet, Wireless Tracking,
+Mirage and Yggdrasil, and their limitations.
 
-%discussion -> most important is the low power
+To building a \glsxtrshort{WSN} it is of the upmost importance to consider the necessity for low
+energy consumption devices, which will have a great impact while deciding the hardware
+and software designs for our sensor nodes. It is essential to have a protocol for the
+communication between the nodes both reliable and power efficient.
+
 % -> zebranet has mobile base station, zebra-tracking is a domain in which the
 % node mobility models are largely unknown, and in fact are ultimately the research goal.
-% -> https://books.google.pt/books?hl=pt-PT&lr=&id=4zyDBwAAQBAJ&oi=fnd&pg=PA21&dq=wireless+sensor+networks&ots=6jAD4wkz4u&sig=f31E5q7e1haSQHXUagmjlYs3LnE&redir_esc=y#v=onepage&q&f=false
-% 1.5.3 Automatic Localization and Time Synchronization
 
 
-%\section{Sensors and Arduino}
-%\label{sec:sensors_and_arduino}
 
+\section{Existing Commercial Solutions}
+\label{sec:existing_commercial_solutions}
+Throughout the last few years there have been developed diverse solutions for problems similiar
+to ours. Every solution has different characteristics, as represented in the Table~\ref{table:2},
+where it is made a comparison between seven solutions we found interesting for this work.
+
+There are different applications available in each of these collars, such as:
+\begin{enumerate}
+      \item Tracking - provides information on where the cattle has been during a period of
+            time, being this data collected every few minutes or every hour, depending on the
+            collar;
+      \item Real-time localization - which makes it possible to always know where all cows
+            are at any moment;
+      \item Virtual fencing - when available it is possible for the user to create a virtual
+            barrier on an mobile application, and when an animal crosses this barrier it can
+            either alert the user on the application, or force the cow to go back inside the
+            fence with the usage of sound triggers first and if the cow continues to leave the
+            encloused area the collar delievers a low intensity shock to the cow \cite{Golinski2022}.
+            This technique will teach the cattle to not cross the barrier as soon as they hear
+            the initial sound delivered by the collar, so that they do not receive the shock;
+      \item Health issues detection - some of these collars have other sensors embedded in them,
+            such as heart rate monitorization, which allows the detection of health issues or
+            imminent birth sooner;
+      \item Temperature detection - similarly to the detection of health issues, some of the
+            explored solutions are able to detect abnormal temperatures for cattle and report
+            it to the user;
+      \item Axis angles detection - the device with this feature allows to detect the angle
+            presented by the device, which may be useful to better understand the cows
+            behaviour, for example detect if she is eating, drinking, sleeping, among others.
+\end{enumerate}
+
+\begin{table}[H]
+      \tiny
+      \centering
+      \setlength\extrarowheight{10pt}
+      \begin{tabular}{|c|c||c|c|c|c|c|c|c|c|c|}
+            \hline
+                                                                    &                       & \multicolumn{2}{|c|}{Digital Matter} &            &            &            &            &            &                     &                         \\
+            \hline
+                                                                    &                       & \makecell[ct]{Oyster                                                                                                                                  \\Edge \cite{Oyster}}                         & \makecell[ct]{Yabby\\Edge \cite{Yabby}} & \makecell[ct]{Digitanimal\\\cite{Digitanimal}} & \makecell[ct]{Chipfox\\\cite{Chipfox}}    & \makecell[ct]{IoT Factory\\\cite{Iotfactory}} & \makecell[ct]{Nofence\\\cite{Nofence}}    & \makecell[ct]{Vence\\\cite{Vence}}      & \makecell[ct]{eShepherd\\\cite{Eshepherd}}  & \makecell[ct]{Halter\\\cite{Halter}}     \\
+            \hline\hline
+            \multirow{6}{*}{\rotatebox[origin=c]{90}{Applications}} & \makecell[ct]{Virtual                                                                                                                                                         \\Fence} & \makecell[ct]{Alert\\ in App}                         &  \makecell[ct]{Alert\\ in App} &  \makecell[ct]{Alert\\ in App} &  \makecell[ct]{Alert\\ in App} &             & \makecell[ct]{Audio +\\Eletric} & \makecell[ct]{Audio +\\Eletric} & \makecell[ct]{Audio +\\Eletric} & \makecell[ct]{Audio +\\Eletric} \\
+            \cline{2-11}
+                                                                    & Tracking              & \textbf{X}                           & \textbf{X} & \textbf{X} & \textbf{X} &            & \textbf{X} & \textbf{X}          & \textbf{X} & \textbf{X} \\
+            \cline{2-11}
+                                                                    & Axis Angles           & \textbf{X}                           &            &            &            &            &            &                     &            &            \\
+            \cline{2-11}
+                                                                    & Health Issues         &                                      &            & \textbf{X} &            & \textbf{X} &            & \textbf{X}          &            & \textbf{X} \\
+            \cline{2-11}
+                                                                    & Temperature           &                                      &            & \textbf{X} &            &            &            &                     & \textbf{X} & \textbf{X} \\
+            \cline{2-11}
+                                                                    & Real-time             & \textbf{X}                           & \textbf{X} & \textbf{X} & \textbf{X} & \textbf{X} & \textbf{X} & \textbf{X}          & \textbf{X} & \textbf{X} \\
+            \hline
+            \multirow{5}{*}{\rotatebox[origin=c]{90}{Technologies}} & WiFi                  & \textbf{X}                           & \textbf{X} &            &            &            &            &                     &            & \textbf{X} \\
+            \cline{2-11}
+                                                                    & Bluetooth             & \textbf{X}                           &            & \textbf{X} &            & \textbf{X} & \textbf{X} &                     &            &            \\
+            \cline{2-11}
+                                                                    & Cellular              & \textbf{X}                           &            &            &            &            & \textbf{X} & \textbf{X}          & \textbf{X} &            \\
+            \cline{2-11}
+                                                                    & LoRaWAN               &                                      & \textbf{X} &            &            & \textbf{X} &            &                     &            & \textbf{X} \\
+            \cline{2-11}
+                                                                    & Sigfox                &                                      &            & \textbf{X} & \textbf{X} &            &            &                     &            &            \\
+            \hline
+            \multirow{2}{*}{\rotatebox[origin=c]{90}{Backend}}      & Cloud                 & \textbf{X}                           & \textbf{X} &            & \textbf{X} & \textbf{X} &            & \textbf{X}          & \textbf{X} & \textbf{X} \\
+            \cline{2-11}
+                                                                    & Private Server        &                                      &            & \textbf{X} &            &            & \textbf{X} &                     &            &            \\
+            \hline
+            \multirow{2}{*}{\rotatebox[origin=c]{90}{Network}}      & Peer-to-peer          &                                      &            &            &            &            &            &                     &            &            \\
+            \cline{2-11}
+                                                                    & Infrastructure        & \textbf{X}                           & \textbf{X} & \textbf{X} & \textbf{X} & \textbf{X} & \textbf{X} & \textbf{X}          & \textbf{X} & \textbf{X} \\
+            \hline
+            \multirow{2}{*}{\rotatebox[origin=c]{90}{Battery}}      & Duration              & 4.5years                             & 3years     & 1.5years   & 3years     & 1-2years   & no data    & 1-2years            & no data    & no data    \\
+            \cline{2-11}
+                                                                    & Solar Painel          &                                      &            &            &            &            & \textbf{X} &                     & \textbf{X} & \textbf{X} \\
+            \hline
+            \multirow{2}{*}{\rotatebox[origin=c]{90}{Price}}        & Per Collar            & 189.03€                              & 106.98€    & 189.95€    & 143.79€    & no data    & 303€       & \textasciitilde 33€ & 60-90€     & no data    \\
+            \cline{2-11}
+                                                                    & Infrastructure        & no data                              & no data    & no data    & 681.51€    & no data    & no data    & no data             & 5000€      & no data    \\
+            \hline
+      \end{tabular}
+      \caption{Commercial Solutions Comparison}
+      \label{table:2}
+\end{table}
+
+\subsection{Discussion}
+\label{subsec:commercial_solutions_discussion}
+The current existent commercial solutions are quite helpful for this work, since they allow us
+to compare the success and metrics of our future solution with the obtained by these collars,
+that are already in the market.
+
+However, they are not a perfect solution for our particular
+problem due to their lack of peer-to-peer options for communication and expensive price.
 
 
 \section{Cattle Production}
@@ -603,10 +844,6 @@ cow will have to be disseminated using a peer-to-peer based protocol.
 Furthermore, it is fundamental to consider in my next steps that the farm owners should be able
 to shift the grazing location of the herds to obtain a wealthier vegetation and soil, leading
 to overall better cattle.
-
-
-% \section{Existing Commercial Solutions}
-% \label{sec:existing_commercial_solutions}
 
 
 \section{Summary}
